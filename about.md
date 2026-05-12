@@ -1,3 +1,3 @@
-# Template Mod
+# Subway Surfers
 
-Edit about.md to change this
+its just a demake of subway surfers
