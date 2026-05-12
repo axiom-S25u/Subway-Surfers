@@ -11,6 +11,7 @@
 	"version": "v1.0.0",
 	"developer": "Axiom",
 	"description": "subway surfers demake",
+	"tags": ["joke", "interface"],
 	"resources": {
 		"files": ["resources/logo.png"]
 	},
