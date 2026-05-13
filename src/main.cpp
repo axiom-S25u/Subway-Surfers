@@ -464,6 +464,7 @@ protected:
     void onClose(CCObject* o) override {
         CCTouchDispatcher::get()->removeDelegate(this);
         FMODAudioEngine::sharedEngine()->stopAllMusic(true);
+        GameManager::sharedState()->playMenuMusic();
         this->unschedule(schedule_selector(SubwayPopup::tick));
         if (obs) { obs->release(); obs = nullptr; }
         Popup::onClose(o);
