@@ -2,6 +2,7 @@
 #include <Geode/ui/Popup.hpp>
 #include <Geode/binding/SimplePlayer.hpp>
 #include <Geode/binding/GameManager.hpp>
+#include <Geode/binding/FMODAudioEngine.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 #include <cstdlib>
 #include <cmath>
@@ -121,6 +122,9 @@ protected:
         CCTouchDispatcher::get()->addTargetedDelegate(this, 1, true);
         g_swipe = 0;
 
+        FMODAudioEngine::sharedEngine()->stopAllMusic(true);
+        FMODAudioEngine::sharedEngine()->playMusic("music.mp3"_spr, true, 0.0f, 0);
+
         float legendX = size.width * 0.5f + kPlayW * 0.5f + 30.0f;
         float legendY = size.height * 0.5f + 50.0f;
         addLegendRow(legendX, legendY,         ccc4(70, 160, 230, 255), "BLOCK",   "swap lane");
@@ -176,6 +180,7 @@ protected:
     void doJump() {
         if (jumpT > 0.0f) return;
         if (slideT > 0.0f) {
+            // slide-cancel into jump
             slideT = 0.0f;
         }
         jumpT = jumpDur;
@@ -184,6 +189,7 @@ protected:
     void doSlide() {
         if (slideT > 0.0f) return;
         if (jumpT > 0.0f) {
+            // air-slam
             jumpT = 0.0f;
         }
         slideT = slideDur;
@@ -354,12 +360,13 @@ protected:
             CCPoint op = o->getPosition();
             op.y -= spd * dt;
             o->setPosition(op);
-            if (op.y < -60.0f) {
+            int kind = o->getTag();
+            float halfH = (kind == 1) ? 22.0f : (kind == 2) ? 8.0f : 5.0f;
+            if (op.y < halfH) { 
                 o->removeFromParent();
                 obs->removeObjectAtIndex(i);
-                continue;
+                continue; // i know its janky but it works
             }
-            int kind = o->getTag();
             if (kind == 2 && jumping) continue;
             if (kind == 3 && sliding) continue;
             if (hits(shitPlayer, o)) { gameOver(); return; }
@@ -456,6 +463,7 @@ protected:
     }
     void onClose(CCObject* o) override {
         CCTouchDispatcher::get()->removeDelegate(this);
+        FMODAudioEngine::sharedEngine()->stopAllMusic(true);
         this->unschedule(schedule_selector(SubwayPopup::tick));
         if (obs) { obs->release(); obs = nullptr; }
         Popup::onClose(o);
